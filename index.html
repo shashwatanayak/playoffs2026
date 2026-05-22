@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL NRR Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #f5f5f0;
+    --white: #ffffff;
+    --border: #e5e5e0;
+    --text: #111111;
+    --muted: #888888;
+    --rcb: #cc0000;
+    --gt: #1a4fa0;
+    --srh: #e85d00;
+    --green: #16a34a;
+    --red: #dc2626;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Geist', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .dev-credit {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .dev-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    text-align: right;
+  }
+
+  .header-title {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .header-sub {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card + .card { margin-top: 16px; }
+
+  .card-title {
+    padding: 16px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── TEAM BLOCK ── */
+  .team-block {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .team-block:last-child { border-bottom: none; }
+
+  .team-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .team-color-bar {
+    width: 4px;
+    height: 28px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .team-name-big {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .team-full {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .frozen-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gt);
+    background: #eef2ff;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  .fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .field input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Geist Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 8px 10px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .field input::-webkit-outer-spin-button,
+  .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .field input:focus {
+    border-color: #aaa;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+    background: var(--white);
+  }
+
+  /* ── MATCH SCENARIO ── */
+  .scenario-block {
+    padding: 16px 20px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .toggle-row {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 16px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 8px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Geist', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .toggle-btn.active {
+    background: var(--white);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .scores-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .score-field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .score-field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .score-field input::-webkit-outer-spin-button,
+  .score-field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .score-field input:focus {
+    border-color: #aaa;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+    background: var(--white);
+  }
+
+  .sliders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .slider-field label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .slider-field label span.val {
+    font-family: 'Geist Mono', monospace;
+    color: var(--text);
+    font-size: 11px;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 2px solid var(--white);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+  }
+
+  /* ── RESULTS ── */
+  .results-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── STANDINGS TABLE ── */
+  .standings-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .standings-table th {
+    padding: 10px 20px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .standings-table th:not(:first-child) { text-align: right; }
+
+  .standings-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .standings-table tr:last-child td { border-bottom: none; }
+
+  .pos-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    width: 28px;
+    display: inline-block;
+  }
+
+  .pos-num.p1 { color: #b8860b; }
+  .pos-num.p2 { color: #888; }
+  .pos-num.p3 { color: #a0522d; }
+
+  .team-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .team-cell-name {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .nrr-cell {
+    font-family: 'Geist Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .nrr-cell.pos { color: var(--green); }
+  .nrr-cell.neg { color: var(--red); }
+
+  .pts-cell {
+    font-family: 'Geist Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .delta-cell {
+    text-align: right;
+  }
+
+  .delta-pill {
+    display: inline-block;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  .delta-pill.up { background: #dcfce7; color: var(--green); }
+  .delta-pill.dn { background: #fee2e2; color: var(--red); }
+  .delta-pill.eq { background: #f3f4f6; color: var(--muted); }
+
+  .status-pill {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 4px 9px;
+    border-radius: 20px;
+    text-align: right;
+  }
+
+  .s-q1   { background: #dcfce7; color: var(--green); }
+  .s-elim { background: #fef9c3; color: #854d0e; }
+  .s-out  { background: #fee2e2; color: var(--red); }
+
+  /* ── ORDER CHAIN ── */
+  .order-section {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .order-chain {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chain-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .chain-gt { color: var(--gt); }
+  .chain-rcb { color: var(--rcb); }
+  .chain-srh { color: var(--srh); }
+
+  .chain-arrow {
+    font-size: 18px;
+    color: #ccc;
+    font-weight: 300;
+  }
+
+  /* ── NRR BARS ── */
+  .bars-section {
+    padding: 20px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .bar-row:last-child { margin-bottom: 0; }
+
+  .bar-label-name {
+    font-size: 13px;
+    font-weight: 700;
+    width: 40px;
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.35s ease;
+    opacity: 0.85;
+  }
+
+  .bar-val-text {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    width: 65px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── INSIGHT ── */
+  .insight-box {
+    margin: 0 20px 20px;
+    padding: 14px 16px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .insight-box strong { font-weight: 600; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 32px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; padding: 20px; }
+    .header { padding: 20px; }
+    .dev-name { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="dev-credit">Developed by</div>
+      <div class="dev-name">Shashwat</div>
+    </div>
+    <div class="header-right">
+      <div class="header-title">IPL 2026 · Playoff Race</div>
+      <div class="header-sub">NRR Calculator</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- LEFT COL -->
+  <div>
+
+    <!-- STANDINGS INPUT -->
+    <div class="card">
+      <div class="card-title">Current Standings</div>
+
+      <!-- RCB -->
+      <div class="team-block">
+        <div class="team-row">
+          <div class="team-color-bar" style="background:var(--rcb)"></div>
+          <div class="team-name-big" style="color:var(--rcb)">RCB</div>
+          <div class="team-full">Royal Challengers</div>
+        </div>
+        <div class="fields-row">
+          <div class="field">
+            <label>Matches</label>
+            <input type="number" id="rcb-m" value="13" min="1" max="14">
+          </div>
+          <div class="field">
+            <label>Points</label>
+            <input type="number" id="rcb-pts" value="18" min="0" max="28">
+          </div>
+          <div class="field">
+            <label>NRR</label>
+            <input type="number" id="rcb-nrr" value="1.065" step="0.001">
+          </div>
+        </div>
+      </div>
+
+      <!-- GT -->
+      <div class="team-block">
+        <div class="team-row">
+          <div class="team-color-bar" style="background:var(--gt)"></div>
+          <div class="team-name-big" style="color:var(--gt)">GT</div>
+          <div class="team-full">Gujarat Titans &nbsp;<span class="frozen-tag">DONE</span></div>
+        </div>
+        <div class="fields-row">
+          <div class="field">
+            <label>Matches</label>
+            <input type="number" id="gt-m" value="14" min="1" max="14">
+          </div>
+          <div class="field">
+            <label>Points</label>
+            <input type="number" id="gt-pts" value="18" min="0" max="28">
+          </div>
+          <div class="field">
+            <label>NRR</label>
+            <input type="number" id="gt-nrr" value="0.695" step="0.001">
+          </div>
+        </div>
+      </div>
+
+      <!-- SRH -->
+      <div class="team-block">
+        <div class="team-row">
+          <div class="team-color-bar" style="background:var(--srh)"></div>
+          <div class="team-name-big" style="color:var(--srh)">SRH</div>
+          <div class="team-full">Sunrisers Hyderabad</div>
+        </div>
+        <div class="fields-row">
+          <div class="field">
+            <label>Matches</label>
+            <input type="number" id="srh-m" value="13" min="1" max="14">
+          </div>
+          <div class="field">
+            <label>Points</label>
+            <input type="number" id="srh-pts" value="16" min="0" max="28">
+          </div>
+          <div class="field">
+            <label>NRR</label>
+            <input type="number" id="srh-nrr" value="0.350" step="0.001">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATCH SCENARIO -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">Match — SRH vs RCB</div>
+      <div class="scenario-block">
+
+        <div class="section-label">Who bats first?</div>
+        <div class="toggle-row">
+          <button class="toggle-btn active" id="btn-srh" onclick="setBatFirst('srh')">SRH Bats First</button>
+          <button class="toggle-btn" id="btn-rcb" onclick="setBatFirst('rcb')">RCB Bats First</button>
+        </div>
+
+        <div class="section-label">Scores</div>
+        <div class="scores-grid">
+          <div class="score-field">
+            <label id="lbl-t1">SRH Score</label>
+            <input type="number" id="t1-score" value="240" min="0" max="400" oninput="calc()">
+          </div>
+          <div class="score-field">
+            <label id="lbl-t2">RCB Score</label>
+            <input type="number" id="t2-score" value="150" min="0" max="400" oninput="calc()">
+          </div>
+        </div>
+
+        <div class="section-label">Overs Played</div>
+        <div class="sliders-grid">
+          <div class="slider-field">
+            <label><span id="lbl-o1">SRH Overs</span><span class="val" id="val-o1">20.0</span></label>
+            <input type="range" id="o1" min="1" max="20" step="0.1" value="20" oninput="syncOvers('o1','val-o1');calc()">
+          </div>
+          <div class="slider-field">
+            <label><span id="lbl-o2">RCB Overs</span><span class="val" id="val-o2">20.0</span></label>
+            <input type="range" id="o2" min="1" max="20" step="0.1" value="20" oninput="syncOvers('o2','val-o2');calc()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COL -->
+  <div class="results-col">
+
+    <!-- STANDINGS -->
+    <div class="card">
+      <div class="card-title">Final Standings After Match</div>
+      <table class="standings-table">
+        <thead>
+          <tr>
+            <th style="width:36px;">#</th>
+            <th>Team</th>
+            <th>NRR</th>
+            <th>Change</th>
+            <th>Pts</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="standings-body"></tbody>
+      </table>
+
+      <!-- ORDER CHAIN -->
+      <div class="order-section">
+        <div class="section-label" style="margin-bottom:10px;">Order</div>
+        <div class="order-chain" id="order-chain"></div>
+      </div>
+
+      <!-- INSIGHT -->
+      <div class="insight-box" id="insight"></div>
+    </div>
+
+    <!-- NRR BARS -->
+    <div class="card">
+      <div class="card-title">NRR After Match</div>
+      <div class="bars-section" id="bars-section"></div>
+    </div>
+
+  </div>
+</div>
+
+<footer>IPL 2026 · NRR Calculator · Built by Shashwat</footer>
+
+<script>
+  const IPL_AVG = 8.5;
+  let batFirst = 'srh';
+
+  const TEAMS = {
+    RCB: { color: 'var(--rcb)', label: 'Royal Challengers' },
+    GT:  { color: 'var(--gt)',  label: 'Gujarat Titans' },
+    SRH: { color: 'var(--srh)', label: 'Sunrisers Hyderabad' },
+  };
+
+  function setBatFirst(t) {
+    batFirst = t;
+    document.getElementById('btn-srh').classList.toggle('active', t === 'srh');
+    document.getElementById('btn-rcb').classList.toggle('active', t === 'rcb');
+    const srhFirst = t === 'srh';
+    document.getElementById('lbl-t1').textContent = srhFirst ? 'SRH Score' : 'RCB Score';
+    document.getElementById('lbl-t2').textContent = srhFirst ? 'RCB Score' : 'SRH Score';
+    document.getElementById('lbl-o1').textContent = srhFirst ? 'SRH Overs' : 'RCB Overs';
+    document.getElementById('lbl-o2').textContent = srhFirst ? 'RCB Overs' : 'SRH Overs';
+    calc();
+  }
+
+  function syncOvers(id, valId) {
+    const v = parseFloat(document.getElementById(id).value);
+    const o = Math.floor(v), b = Math.round((v - o) * 6);
+    document.getElementById(valId).textContent = `${o}.${b}`;
+  }
+
+  function nrr(rs, os, rc, oc) {
+    return os > 0 && oc > 0 ? rs/os - rc/oc : 0;
+  }
+
+  function base(nrrVal, matches) {
+    const os = matches * 20;
+    return {
+      rs: (IPL_AVG + nrrVal/2) * os,
+      rc: (IPL_AVG - nrrVal/2) * os,
+      os, oc: os
+    };
+  }
+
+  function fmt(v) { return (v >= 0 ? '+' : '') + v.toFixed(3); }
+
+  function calc() {
+    const rcbM   = +document.getElementById('rcb-m').value;
+    const rcbPts = +document.getElementById('rcb-pts').value;
+    const rcbNRR = +document.getElementById('rcb-nrr').value;
+    const gtM    = +document.getElementById('gt-m').value;
+    const gtPts  = +document.getElementById('gt-pts').value;
+    const gtNRR  = +document.getElementById('gt-nrr').value;
+    const srhM   = +document.getElementById('srh-m').value;
+    const srhPts = +document.getElementById('srh-pts').value;
+    const srhNRR = +document.getElementById('srh-nrr').value;
+
+    const s1 = +document.getElementById('t1-score').value;
+    const s2 = +document.getElementById('t2-score').value;
+    const o1 = +document.getElementById('o1').value;
+    const o2 = +document.getElementById('o2').value;
+
+    const srhScore = batFirst === 'srh' ? s1 : s2;
+    const srhOvers = batFirst === 'srh' ? o1 : o2;
+    const rcbScore = batFirst === 'srh' ? s2 : s1;
+    const rcbOvers = batFirst === 'srh' ? o2 : o1;
+
+    const srhWon = srhScore > rcbScore;
+    const rcbWon = rcbScore > srhScore;
+    const tie    = srhScore === rcbScore;
+
+    const R = base(rcbNRR, rcbM);
+    const S = base(srhNRR, srhM);
+
+    // RCB: batted rcbOvers, bowled srhOvers
+    const newRcbNRR = nrr(R.rs + rcbScore, R.os + rcbOvers, R.rc + srhScore, R.oc + srhOvers);
+    // SRH: batted srhOvers, bowled rcbOvers
+    const newSrhNRR = nrr(S.rs + srhScore, S.os + srhOvers, S.rc + rcbScore, S.oc + rcbOvers);
+    const newGtNRR  = gtNRR;
+
+    const newRcbPts = rcbPts + (rcbWon ? 2 : tie ? 1 : 0);
+    const newSrhPts = srhPts + (srhWon ? 2 : tie ? 1 : 0);
+    const newGtPts  = gtPts;
+
+    const teams = [
+      { id: 'RCB', nrr: newRcbNRR, oldNrr: rcbNRR, pts: newRcbPts, color: 'var(--rcb)' },
+      { id: 'GT',  nrr: newGtNRR,  oldNrr: gtNRR,  pts: newGtPts,  color: 'var(--gt)', frozen: true },
+      { id: 'SRH', nrr: newSrhNRR, oldNrr: srhNRR, pts: newSrhPts, color: 'var(--srh)' },
+    ].sort((a, b) => b.pts !== a.pts ? b.pts - a.pts : b.nrr - a.nrr);
+
+    // ── STANDINGS TABLE ──
+    const posLabels = ['p1','p2','p3'];
+    const statusLabels = ['s-q1','s-q1','s-elim'];
+    const statusTexts = ['Qualifier 1','Qualifier 1','Eliminator'];
+
+    document.getElementById('standings-body').innerHTML = teams.map((t, i) => {
+      const diff = t.nrr - t.oldNrr;
+      const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(3);
+      const dClass = diff > 0.001 ? 'up' : diff < -0.001 ? 'dn' : 'eq';
+      const nrrClass = t.nrr >= 0 ? 'pos' : 'neg';
+      return `
+        <tr>
+          <td><span class="pos-num ${posLabels[i]}">${i+1}</span></td>
+          <td>
+            <div class="team-cell">
+              <div class="dot" style="background:${t.color}"></div>
+              <div class="team-cell-name" style="color:${t.color}">${t.id}</div>
+              ${t.frozen ? '<span class="frozen-tag">DONE</span>' : ''}
+            </div>
+          </td>
+          <td class="nrr-cell ${nrrClass}">${fmt(t.nrr)}</td>
+          <td class="delta-cell"><span class="delta-pill ${dClass}">${diffStr}</span></td>
+          <td class="pts-cell">${t.pts}</td>
+          <td><span class="status-pill ${statusLabels[i]}">${statusTexts[i]}</span></td>
+        </tr>
+      `;
+    }).join('');
+
+    // ── ORDER CHAIN ──
+    const colorMap = { RCB: 'var(--rcb)', GT: 'var(--gt)', SRH: 'var(--srh)' };
+    document.getElementById('order-chain').innerHTML = teams.map((t, i) => {
+      const arrow = i < teams.length - 1 ? '<span class="chain-arrow"> › </span>' : '';
+      return `<span class="chain-name" style="color:${colorMap[t.id]}">${t.id}</span>${arrow}`;
+    }).join('');
+
+    // ── INSIGHT ──
+    const top2 = teams.slice(0,2).map(t => t.id);
+    let msg = '';
+    if (rcbWon) {
+      msg = `<strong>RCB win</strong> — RCB secure their Qualifier 1 spot. Qualifier 1 will be <strong>${top2[0]} vs ${top2[1]}</strong>.`;
+    } else if (srhWon) {
+      const margin = srhScore - rcbScore;
+      if (top2.includes('RCB')) {
+        msg = `<strong>SRH win by ${margin} runs</strong> — RCB still in Qualifier 1 despite the loss. Qualifier 1: <strong>${top2[0]} vs ${top2[1]}</strong>.`;
+      } else {
+        msg = `<strong>SRH win by ${margin} runs</strong> — RCB drop to the Eliminator! SRH steal the Qualifier 1 spot. Qualifier 1: <strong>${top2[0]} vs ${top2[1]}</strong>.`;
+      }
+    } else {
+      msg = `<strong>Tie</strong> — Points shared. NRR impact is minimal.`;
+    }
+    document.getElementById('insight').innerHTML = msg;
+
+    // ── BARS ──
+    const vals = [newRcbNRR, newGtNRR, newSrhNRR];
+    const mn = Math.min(...vals);
+    const mx = Math.max(...vals);
+    const rng = mx - mn || 1;
+
+    document.getElementById('bars-section').innerHTML = teams.map(t => {
+      const pct = Math.max(4, ((t.nrr - mn) / rng) * 100);
+      const nrrClass = t.nrr >= 0 ? 'pos' : 'neg';
+      return `
+        <div class="bar-row">
+          <div class="bar-label-name" style="color:${t.color}">${t.id}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%;background:${t.color};"></div>
+          </div>
+          <div class="bar-val-text nrr-cell ${nrrClass}">${fmt(t.nrr)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Init
+  syncOvers('o1','val-o1');
+  syncOvers('o2','val-o2');
+  calc();
+
+  document.querySelectorAll('input[type=number]').forEach(el => el.addEventListener('input', calc));
+</script>
+</body>
+</html>
